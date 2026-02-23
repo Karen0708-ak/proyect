@@ -8,7 +8,7 @@
 		<version>4.1.0-M2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>.com.utc</groupId>
+	<groupId>com.utc</groupId>
 	<artifactId>proyect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>proyect</name>
@@ -68,6 +68,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 	</dependencies>
 
