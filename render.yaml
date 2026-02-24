@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: proyect
+    env: java
+    plan: free
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -Dserver.port=$PORT -jar target/*.jar
+    healthCheckPath: /login
+    envVars:
+      - key: JAVA_VERSION
+        value: 21
+      - key: JDBC_DATABASE_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: SHOW_SQL
+        value: "false"
+      - key: THYMELEAF_CACHE
+        value: "true"
+      - key: SQL_INIT_MODE
+        value: "never"
