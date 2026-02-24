@@ -2,6 +2,7 @@ package com.utc.proyect.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.bind.annotation.*;
 
 import com.utc.proyect.entity.Usuario;
@@ -19,8 +20,14 @@ public class RegisterController {
     }
 
     @PostMapping("/registro")
-    public String registrarUsuario(Usuario usuario) {
-        usuarioService.registrarUsuario(usuario);
-        return "redirect:/login";
+    public String registrarUsuario(Usuario usuario, RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.registrarUsuario(usuario);
+            redirectAttributes.addFlashAttribute("success", "Usuario registrado correctamente. Inicia sesion.");
+            return "redirect:/login";
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/registro";
+        }
     }
 }
