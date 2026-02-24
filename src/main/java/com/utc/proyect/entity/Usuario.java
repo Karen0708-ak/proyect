@@ -15,7 +15,8 @@ public class Usuario {
 
     private String password;
 
-    private String rol;
+    @Column(nullable = false)
+    private String rol; // ROLE_USER o ROLE_ADMIN
 
     // GETTERS Y SETTERS
 
