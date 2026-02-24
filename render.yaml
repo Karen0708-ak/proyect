@@ -1,14 +1,11 @@
 services:
   - type: web
     name: proyect
-    env: java
+    env: docker
     plan: free
-    buildCommand: ./mvnw clean package -DskipTests
-    startCommand: java -Dserver.port=$PORT -jar target/*.jar
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /login
     envVars:
-      - key: JAVA_VERSION
-        value: 21
       - key: JDBC_DATABASE_URL
         sync: false
       - key: DB_USERNAME
