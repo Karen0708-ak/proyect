@@ -2,11 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Inicio</title>
+    <title>Panel Admin</title>
 </head>
 <body>
-    <h1>Inicio del sistema</h1>
-    <p>No se pudo determinar un rol valido para este usuario.</p>
+    <h1>Panel de administrador</h1>
+    <p>Bienvenido. Este espacio es solo para usuarios con rol ADMIN.</p>
+
+    <ul>
+        <li><a th:href="@{/admin/panel}">Inicio admin</a></li>
+        <li><a th:href="@{/user/panel}">Ver panel de usuario (si tiene permiso)</a></li>
+    </ul>
 
     <form th:action="@{/logout}" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />

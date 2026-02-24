@@ -1,9 +1,8 @@
 package com.utc.proyect.service;
 
-import java.util.Collections;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.utc.proyect.entity.Usuario;
@@ -14,6 +13,9 @@ public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -27,8 +29,6 @@ public class UsuarioService implements UserDetailsService {
                 .roles(usuario.getRol().replace("ROLE_", ""))
                 .build();
     }
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
 
     public void registrarUsuario(Usuario usuario) {
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
