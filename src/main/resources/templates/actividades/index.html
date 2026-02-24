@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Actividades por Accion</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(145deg, #dbeafe, #ecfeff); color: #0f172a; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; }
+        .list-wrapper { padding-top: 96px; }
+        .shell { background: #ffffff; border: 1px solid rgba(15, 23, 42, 0.1); border-radius: 16px; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12); }
+        .table thead th { background: #0f172a; color: #ffffff; border-bottom: 0; }
+        .truncate { max-width: 330px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge-warning { background-color: #ffc107; color: #212529; }
+        .badge-info { background-color: #0dcaf0; color: #0f172a; }
+        .badge-success { background-color: #198754; color: #ffffff; }
+        .badge-danger { background-color: #dc3545; color: #ffffff; }
+        .dt-buttons .btn {
+            margin-right: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <main class="container-fluid py-4 list-wrapper">
+        <section class="shell p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                <div>
+                    <h1 class="h3 mb-1">Actividades por Accion</h1>
+                    <p class="mb-0 text-muted">CRUD de actividades asociadas al plan ambiental.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:if="${isAdmin}" th:href="@{/actividades/nuevo}" class="btn btn-success">Nueva actividad</a>
+                    <a th:href="@{/acciones}" class="btn btn-outline-primary">Ir a acciones</a>
+                    <a th:href="@{/home}" class="btn btn-outline-dark">Volver al panel</a>
+                </div>
+            </div>
+
+            <div th:if="${!isAdmin}" class="alert alert-info mb-4">
+                Tu perfil es de solo lectura. Puedes consultar actividades, pero no crear, editar ni eliminar.
+            </div>
+
+            <div id="actividadFlags" th:attr="data-success=${successMessage},data-error=${errorMessage}"></div>
+
+            <div th:if="${#lists.isEmpty(actividades)}" class="alert alert-info">
+                No hay actividades registradas.
+            </div>
+
+            <div class="table-responsive" th:if="${!#lists.isEmpty(actividades)}">
+                <table id="tablaActividades" class="table table-hover table-striped align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Numero</th>
+                            <th>Fecha inicial</th>
+                            <th>Fecha maxima</th>
+                            <th>Estado</th>
+                            <th>Accion (aspecto ambiental)</th>
+                            <th>Fecha creado</th>
+                            <th>Fecha editado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${actividades}">
+                            <td th:text="${a.codigoActividad}"></td>
+                            <td th:text="${a.numeroActividad}"></td>
+                            <td th:text="${a.fechaInicialActividad != null ? #temporals.format(a.fechaInicialActividad, 'dd/MM/yyyy') : '-'}"></td>
+                            <td th:text="${a.fechaMaxActividad != null ? #temporals.format(a.fechaMaxActividad, 'dd/MM/yyyy') : '-'}"></td>
+                            <td>
+                                <span class="badge"
+                                      th:text="${a.estadoActividad}"
+                                      th:classappend="${a.estadoActividad == 'PENDIENTE'} ? ' badge-warning' :
+                                                      (${a.estadoActividad == 'EN_PROGRESO'} ? ' badge-info' :
+                                                      (${a.estadoActividad == 'COMPLETADO'} ? ' badge-success' : ' badge-danger'))"></span>
+                            </td>
+                            <td class="truncate" th:title="${a.accionPlanAmbiental != null ? a.accionPlanAmbiental.aspectoAmbientalAccion : '-'}">
+                                <span th:text="${a.accionPlanAmbiental != null ? a.accionPlanAmbiental.aspectoAmbientalAccion : '-'}"></span>
+                                <small class="text-muted d-block" th:text="${a.accionPlanAmbiental != null ? ('Codigo accion: ' + a.accionPlanAmbiental.codigoAccion) : ''}"></small>
+                            </td>
+                            <td th:text="${a.fechaCreadoActividad != null ? #temporals.format(a.fechaCreadoActividad, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                            <td th:text="${a.fechaEditadoActividad != null ? #temporals.format(a.fechaEditadoActividad, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+                            <td>
+                                <div th:if="${isAdmin}" class="d-flex gap-2">
+                                    <a th:href="@{/actividades/editar/{id}(id=${a.codigoActividad})}" class="btn btn-sm btn-outline-warning">Editar</a>
+                                    <a th:href="@{/actividades/eliminar/{id}(id=${a.codigoActividad})}" class="btn btn-sm btn-outline-danger btn-eliminar" th:attr="data-numero=${a.numeroActividad}">Eliminar</a>
+                                </div>
+                                <span th:if="${!isAdmin}" class="badge text-bg-secondary">Sin permisos</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#tablaActividades').DataTable({
+                responsive: true,
+                dom: "<'row mb-2'<'col-md-7'B><'col-md-5'f>>" +
+                     "rt" +
+                     "<'row mt-3'<'col-md-5'i><'col-md-7'p>>",
+                buttons: [
+                    { extend: 'copy', text: 'Copiar', className: 'btn btn-secondary btn-sm' },
+                    { extend: 'csv', text: 'CSV', className: 'btn btn-success btn-sm', exportOptions: { columns: ':visible:not(:last-child)' } },
+                    { extend: 'excel', text: 'Excel', className: 'btn btn-success btn-sm', exportOptions: { columns: ':visible:not(:last-child)' } },
+                    { extend: 'pdf', text: 'PDF', className: 'btn btn-danger btn-sm', exportOptions: { columns: ':visible:not(:last-child)' } },
+                    { extend: 'print', text: 'Imprimir', className: 'btn btn-dark btn-sm', exportOptions: { columns: ':visible:not(:last-child)' } }
+                ],
+                pageLength: 10,
+                lengthMenu: [ [5, 10, 25, 50, -1], [5, 10, 25, 50, 'Todos'] ],
+                order: [ [0, 'desc'] ],
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.8/i18n/es-ES.json'
+                }
+            });
+
+            var flags = document.getElementById('actividadFlags');
+            if (flags && flags.dataset.success) {
+                Swal.fire({ icon: 'success', title: 'Operacion exitosa', text: flags.dataset.success, confirmButtonColor: '#198754' });
+            } else if (flags && flags.dataset.error) {
+                Swal.fire({ icon: 'error', title: 'Ocurrio un problema', text: flags.dataset.error, confirmButtonColor: '#dc3545' });
+            }
+
+            document.querySelectorAll('.btn-eliminar').forEach(function (btn) {
+                btn.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    var numero = btn.getAttribute('data-numero');
+                    var href = btn.getAttribute('href');
+                    Swal.fire({
+                        title: 'Eliminar actividad?',
+                        html: 'Vas a eliminar la actividad <b>#' + numero + '</b><br><span class="text-muted">Esta accion no se puede deshacer</span>',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Eliminar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d'
+                    }).then(function (result) {
+                        if (result.isConfirmed && href) {
+                            window.location.href = href;
+                        } else if (result.dismiss === Swal.DismissReason.cancel) {
+                            Swal.fire({ icon: 'info', title: 'Operacion cancelada', text: 'No se elimino la actividad.', timer: 1200, showConfirmButton: false });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

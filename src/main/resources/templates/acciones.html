@@ -49,8 +49,15 @@
         .modal-content {
             max-height: calc(100vh - 2rem);
         }
-        .modal-body {
+        .modal-dialog.modal-dialog-scrollable {
+            height: calc(100vh - 1rem);
+        }
+        .modal-dialog-scrollable .modal-content {
+            max-height: 100%;
+        }
+        .modal-dialog-scrollable .modal-body {
             overflow-y: auto;
+            max-height: calc(100vh - 210px);
         }
         .form-label {
             font-weight: 700;
@@ -165,12 +172,18 @@
                 <div class="modal-header text-white" style="background: linear-gradient(90deg, #0ea5a4, #0b3a53);">
                     <h5 class="modal-title" id="accionModalLabel"
                         th:text="${modoEdicion} ? 'Editar accion' : 'Nueva accion'">Nueva accion</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white btn-cancelar-modal-accion" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form th:action="@{/acciones/guardar}" th:object="${accionForm}" method="post" id="formAccion" novalidate>
                     <div class="modal-body">
                         <input type="hidden" th:field="*{codigoAccion}">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="alert alert-danger" th:if="${errorFormulario != null || #fields.hasAnyErrors()}">
+                            <div th:if="${errorFormulario != null}" th:text="${errorFormulario}"></div>
+                            <ul class="mb-0 mt-2" th:if="${#fields.hasAnyErrors()}">
+                                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+                            </ul>
+                        </div>
 
                         <div class="row g-3">
                             <div class="col-md-4">
@@ -252,8 +265,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <a th:if="${modoEdicion}" th:href="@{/acciones}" class="btn btn-outline-secondary">Cancelar</a>
-                        <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Cerrar</button>
+                        <a th:if="${modoEdicion}" th:href="@{/acciones}" class="btn btn-outline-secondary btn-cancelar-accion">Cancelar</a>
+                        <button type="button" class="btn btn-light border btn-cancelar-modal-accion" data-bs-dismiss="modal">Cerrar</button>
                         <button type="submit" class="btn btn-success"
                                 th:text="${modoEdicion} ? 'Actualizar accion' : 'Guardar accion'">Guardar</button>
                     </div>
@@ -303,6 +316,7 @@
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             var modoEdicion = /*[[${modoEdicion}]]*/ false;
+            var abrirModal = /*[[${abrirModal}]]*/ false;
             var successMessage = /*[[${successMessage}]]*/ null;
             var errorMessage = /*[[${errorMessage}]]*/ null;
 
@@ -343,7 +357,7 @@
                 alertaError(errorMessage);
             }
 
-            if (modoEdicion) {
+            if (modoEdicion || abrirModal) {
                 var modalEl = document.getElementById('accionModal');
                 if (modalEl) {
                     bootstrap.Modal.getOrCreateInstance(modalEl).show();
@@ -364,7 +378,41 @@
                 }).then(function (result) {
                     if (result.isConfirmed) {
                         form.submit();
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Operacion cancelada',
+                            text: 'No se elimino la accion.',
+                            timer: 1200,
+                            showConfirmButton: false
+                        });
                     }
+                });
+            });
+
+            $(document).on('click', '.btn-cancelar-accion', function (e) {
+                e.preventDefault();
+                var href = this.getAttribute('href');
+                alertaConfirmar({
+                    titulo: 'Cancelar cambios?',
+                    html: 'Se perderan los cambios no guardados.',
+                    confirmText: 'Si, cancelar',
+                    cancelText: 'Seguir editando',
+                    confirmColor: '#0d6efd'
+                }).then(function (result) {
+                    if (result.isConfirmed && href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-cancelar-modal-accion', function () {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Operacion cancelada',
+                    text: 'Formulario cerrado.',
+                    timer: 1200,
+                    showConfirmButton: false
                 });
             });
 

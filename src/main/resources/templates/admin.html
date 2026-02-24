@@ -47,28 +47,12 @@
 </head>
 <body>
     <div th:replace="fragments/navbar :: navbar"></div>
+    <div id="loginSuccessFlag" th:attr="data-login-success=${loginSuccess}"></div>
 
     <main class="admin-panel">
         <section class="panel-card p-4 p-md-5">
             <h1 class="mb-2">Panel de administrador</h1>
             <p class="soft-text mb-4">Gestion completa del panel y de los modulos del plan ambiental.</p>
-
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <div class="module-card p-4 h-100">
-                        <h5>Panel administrativo</h5>
-                        <p class="mb-3 soft-text">Vista principal de administracion.</p>
-                        <a th:href="@{/admin/panel}" class="btn btn-success">Recargar panel</a>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="module-card p-4 h-100">
-                        <h5>Panel de usuario</h5>
-                        <p class="mb-3 soft-text">Ver panel de usuario si el rol lo permite.</p>
-                        <a th:href="@{/user/panel}" class="btn btn-outline-light">Ir a panel user</a>
-                    </div>
-                </div>
-            </div>
 
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
@@ -93,12 +77,25 @@
                 </div>
             </div>
 
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
+                    <div class="module-card p-4 h-100">
+                        <h5>Actividades por accion</h5>
+                        <p class="mb-3 soft-text">Gestion completa de actividades asociadas a cada accion ambiental.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a th:href="@{/actividades}" class="btn btn-success">Listado CRUD</a>
+                            <a th:href="@{/actividades/nuevo}" class="btn btn-outline-light">Nueva actividad</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="mb-4">
                 <p class="mb-1"><strong>Rol:</strong> ADMIN</p>
                 <p class="mb-0"><strong>Usuario:</strong> <span th:text="${#authentication.name}">admin</span></p>
             </div>
 
-            <form th:action="@{/logout}" method="post">
+            <form th:action="@{/logout}" method="post" class="logout-form">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button type="submit" class="btn btn-danger">Cerrar sesion</button>
             </form>
@@ -106,5 +103,18 @@
     </main>
 
     <script th:src="@{/js/main.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var flag = document.getElementById('loginSuccessFlag');
+            if (flag && flag.dataset.loginSuccess === 'true' && typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sesion iniciada',
+                    text: 'Bienvenido al panel de administrador.',
+                    confirmButtonColor: '#198754'
+                });
+            }
+        });
+    </script>
 </body>
 </html>

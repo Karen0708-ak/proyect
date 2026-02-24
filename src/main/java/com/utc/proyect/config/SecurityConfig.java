@@ -24,15 +24,18 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/", "/login", "/registro", "/home").permitAll()
-                .requestMatchers(HttpMethod.POST, "/secciones/**", "/acciones/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/secciones/**", "/acciones/**", "/actividades/**").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/actividades/nuevo", "/actividades/guardar", "/actividades/editar/**",
+                        "/actividades/actualizar/**", "/actividades/eliminar/**").hasRole("ADMIN")
+                .requestMatchers("/actividades").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/secciones/**", "/acciones/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true)
+                .defaultSuccessUrl("/home?loginSuccess=true", true)
                 .permitAll()
             )
             .logout(logout -> logout

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.utc.proyect.entity.SeccionPlanAmbiental;
 import com.utc.proyect.repository.SeccionPlanAmbientalRepository;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/secciones")
@@ -41,15 +44,23 @@ public class SeccionPlanAmbientalController {
             seccionForm = seccionRepository.findById(editarId).orElse(new SeccionPlanAmbiental());
         }
 
-        model.addAttribute("secciones", secciones);
-        model.addAttribute("seccionForm", seccionForm);
-        model.addAttribute("modoEdicion", seccionForm.getCodigoSeccion() != null);
-        model.addAttribute("isAdmin", hasRole(authentication, "ROLE_ADMIN"));
+        prepararVista(model, authentication, secciones, seccionForm, false);
         return "secciones";
     }
 
     @PostMapping("/guardar")
-    public String guardar(@ModelAttribute("seccionForm") SeccionPlanAmbiental payload, RedirectAttributes redirectAttributes) {
+    public String guardar(
+            @Valid @ModelAttribute("seccionForm") SeccionPlanAmbiental payload,
+            BindingResult bindingResult,
+            Model model,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            List<SeccionPlanAmbiental> secciones = seccionRepository.findAll(Sort.by(Sort.Direction.DESC, "codigoSeccion"));
+            prepararVista(model, authentication, secciones, payload, true);
+            return "secciones";
+        }
 
         boolean modoEdicion = payload.getCodigoSeccion() != null;
         SeccionPlanAmbiental seccion = modoEdicion
@@ -66,6 +77,19 @@ public class SeccionPlanAmbientalController {
         redirectAttributes.addFlashAttribute("successMessage",
                 modoEdicion ? "Seccion actualizada correctamente." : "Seccion creada correctamente.");
         return "redirect:/secciones";
+    }
+
+    private void prepararVista(
+            Model model,
+            Authentication authentication,
+            List<SeccionPlanAmbiental> secciones,
+            SeccionPlanAmbiental seccionForm,
+            boolean abrirModal) {
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("seccionForm", seccionForm);
+        model.addAttribute("modoEdicion", seccionForm.getCodigoSeccion() != null);
+        model.addAttribute("abrirModal", abrirModal);
+        model.addAttribute("isAdmin", hasRole(authentication, "ROLE_ADMIN"));
     }
 
     @PostMapping("/eliminar/{id}")

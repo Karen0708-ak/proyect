@@ -1,14 +1,5 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">  <!-- AGREGAR ESTA LÍNEA --><head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <!-- Define el fragmento con th:fragment -->
-    <nav class="navbar" th:fragment="navbar">
+<th:block xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="navbar">
+    <nav class="navbar">
         <div class="nav-container">
             <div class="nav-logo">
                 <a th:href="@{/home}">
@@ -16,17 +7,16 @@
                     <span class="logo-highlight">VIVE</span>
                 </a>
             </div>
-            
-            <!-- Resto del navbar igual -->
+
             <ul class="nav-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
                 <li class="nav-item"><a th:href="@{/home}" class="nav-link">Home</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">Service</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">Price</a></li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">Pages ▼</a>
+                    <a href="#" class="nav-link">Pages ?</a>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Galería</a></li>
+                        <li><a href="#">Galeria</a></li>
                         <li><a href="#">Blog</a></li>
                         <li><a href="#">Equipo</a></li>
                         <li><a href="#">Testimonios</a></li>
@@ -34,8 +24,7 @@
                 </li>
                 <li class="nav-item"><a href="#" class="nav-link">Contact</a></li>
             </ul>
-            
-            <!-- Menú para usuarios autenticados -->
+
             <ul class="nav-menu" th:if="${#authorization.expression('isAuthenticated()')}">
                 <li class="nav-item"><a th:href="@{/home}" class="nav-link">Inicio</a></li>
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
@@ -44,30 +33,34 @@
                 <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'')')}">
                     <a th:href="@{/user/panel}" class="nav-link">Mi Panel</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link">Servicios ▼</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Consultoría</a></li>
-                        <li><a href="#">Proyectos</a></li>
-                        <li><a href="#">Recursos</a></li>
-                    </ul>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <a th:href="@{/actividades}" class="nav-link">Actividades</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/secciones}" class="nav-link">Secciones</a>
+                </li>
+                <li class="nav-item">
+                    <a th:href="@{/acciones}" class="nav-link">Acciones</a>
+                </li>
+                <li class="nav-item" th:if="${#authorization.expression('hasRole(''USER'')')}">
+                    <a th:href="@{/actividades}" class="nav-link">Actividades</a>
                 </li>
             </ul>
-            
+
             <div class="nav-buttons">
                 <div th:unless="${#authorization.expression('isAuthenticated()')}">
-                    <a th:href="@{/login}" class="btn btn-login">Iniciar Sesión</a>
+                    <a th:href="@{/login}" class="btn btn-login">Iniciar sesion</a>
                     <a th:href="@{/registro}" class="btn btn-quote">Registrarse</a>
                 </div>
-                
+
                 <div th:if="${#authorization.expression('isAuthenticated()')}">
-                    <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <form th:action="@{/logout}" method="post" style="display: inline;" class="logout-form">
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+                        <button type="submit" class="btn btn-logout">Cerrar sesion</button>
                     </form>
                 </div>
             </div>
-            
+
             <div class="hamburger">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -77,5 +70,35 @@
     </nav>
 
     <script th:src="@{/js/main.js}"></script>
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.logout-form').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    Swal.fire({
+                        title: 'Cerrar sesion?',
+                        text: 'Tu sesion actual se cerrara.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Si, cerrar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#dc3545',
+                        cancelButtonColor: '#6c757d'
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        } else {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Operacion cancelada',
+                                text: 'La sesion sigue activa.',
+                                confirmButtonColor: '#0d6efd'
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</th:block>

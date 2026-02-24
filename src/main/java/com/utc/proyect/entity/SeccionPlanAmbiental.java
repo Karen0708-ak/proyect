@@ -11,6 +11,11 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "seccion_plan_ambiental")
@@ -22,16 +27,23 @@ public class SeccionPlanAmbiental {
     private Long codigoSeccion;
 
     @Column(name = "numero_seccion")
+    @NotNull(message = "El numero de seccion es obligatorio.")
+    @Min(value = 1, message = "El numero de seccion debe ser mayor o igual a 1.")
+    @Max(value = 9999, message = "El numero de seccion no puede superar 9999.")
     private Integer numeroSeccion;
 
     @Column(name = "titulo_seccion", length = 255, nullable = false)
+    @NotBlank(message = "El titulo de la seccion es obligatorio.")
+    @Size(min = 3, max = 255, message = "El titulo debe tener entre 3 y 255 caracteres.")
     private String tituloSeccion;
 
     @Lob
     @Column(name = "objetivo_seccion", columnDefinition = "LONGTEXT")
+    @Size(max = 4000, message = "El objetivo no puede superar 4000 caracteres.")
     private String objetivoSeccion;
 
     @Column(name = "color_seccion", length = 25)
+    @Size(max = 25, message = "El color no puede superar 25 caracteres.")
     private String colorSeccion;
 
     @Column(name = "fk_cod_etapa")

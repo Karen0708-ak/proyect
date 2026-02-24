@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,8 @@ import com.utc.proyect.entity.AccionPlanAmbiental;
 import com.utc.proyect.entity.SeccionPlanAmbiental;
 import com.utc.proyect.repository.AccionPlanAmbientalRepository;
 import com.utc.proyect.repository.SeccionPlanAmbientalRepository;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/acciones")
@@ -53,26 +56,35 @@ public class AccionPlanAmbientalController {
             }
         }
 
-        model.addAttribute("acciones", acciones);
-        model.addAttribute("secciones", secciones);
-        model.addAttribute("accionForm", accionForm);
-        model.addAttribute("seccionIdSeleccionada", seccionIdSeleccionada);
-        model.addAttribute("modoEdicion", accionForm.getCodigoAccion() != null);
-        model.addAttribute("isAdmin", hasRole(authentication, "ROLE_ADMIN"));
+        prepararVista(model, authentication, acciones, secciones, accionForm, seccionIdSeleccionada, false, null);
 
         return "acciones";
     }
 
     @PostMapping("/guardar")
     public String guardar(
-            @ModelAttribute("accionForm") AccionPlanAmbiental payload,
-            @RequestParam("seccionId") Long seccionId,
+            @Valid @ModelAttribute("accionForm") AccionPlanAmbiental payload,
+            BindingResult bindingResult,
+            @RequestParam(value = "seccionId", required = false) Long seccionId,
+            Model model,
+            Authentication authentication,
             RedirectAttributes redirectAttributes) {
 
-        SeccionPlanAmbiental seccion = seccionRepository.findById(seccionId).orElse(null);
-        if (seccion == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "La seccion seleccionada no existe.");
-            return "redirect:/acciones";
+        SeccionPlanAmbiental seccion = null;
+        if (seccionId == null) {
+            bindingResult.reject("seccionId", "La seccion es obligatoria.");
+        } else {
+            seccion = seccionRepository.findById(seccionId).orElse(null);
+            if (seccion == null) {
+                bindingResult.reject("seccionId", "La seccion seleccionada no existe.");
+            }
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<AccionPlanAmbiental> acciones = accionRepository.findAll(Sort.by(Sort.Direction.DESC, "codigoAccion"));
+            List<SeccionPlanAmbiental> secciones = seccionRepository.findAll(Sort.by(Sort.Direction.ASC, "numeroSeccion"));
+            prepararVista(model, authentication, acciones, secciones, payload, seccionId, true, "Corrige los errores del formulario.");
+            return "acciones";
         }
 
         boolean modoEdicion = payload.getCodigoAccion() != null;
@@ -108,6 +120,25 @@ public class AccionPlanAmbientalController {
             redirectAttributes.addFlashAttribute("errorMessage", "La accion ya no existe o fue eliminada.");
         }
         return "redirect:/acciones";
+    }
+
+    private void prepararVista(
+            Model model,
+            Authentication authentication,
+            List<AccionPlanAmbiental> acciones,
+            List<SeccionPlanAmbiental> secciones,
+            AccionPlanAmbiental accionForm,
+            Long seccionIdSeleccionada,
+            boolean abrirModal,
+            String errorFormulario) {
+        model.addAttribute("acciones", acciones);
+        model.addAttribute("secciones", secciones);
+        model.addAttribute("accionForm", accionForm);
+        model.addAttribute("seccionIdSeleccionada", seccionIdSeleccionada);
+        model.addAttribute("modoEdicion", accionForm.getCodigoAccion() != null);
+        model.addAttribute("abrirModal", abrirModal);
+        model.addAttribute("errorFormulario", errorFormulario);
+        model.addAttribute("isAdmin", hasRole(authentication, "ROLE_ADMIN"));
     }
 
     private boolean hasRole(Authentication authentication, String role) {
