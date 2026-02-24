@@ -1,14 +1,56 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Registro</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">  <!-- AGREGAR ESTA LÍNEA --><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerdeVive - Registro</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h2>Registro</h2>
-    <form th:action="@{/registro}" method="post">
-        <input type="text" name="username" placeholder="Usuario" required/>
-        <input type="password" name="password" placeholder="Contraseña" required/>
-        <button type="submit">Registrarse</button>
-    </form>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Únete a VerdeVive</h2>
+            <p>Crea una cuenta y sé parte del cambio</p>
+            
+            <!-- Mensaje de éxito si existe -->
+            <div class="success-message" th:if="${success}">
+                <p th:text="${success}"></p>
+            </div>
+            
+            <!-- Mensaje de error si existe -->
+            <div class="error-message" th:if="${error}">
+                <p th:text="${error}"></p>
+            </div>
+            
+            <form th:action="@{/registro}" method="post" class="auth-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                
+                <div class="form-group">
+                    <input type="text" name="username" placeholder="Nombre de usuario" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="Correo electrónico" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="Contraseña" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" name="confirmPassword" placeholder="Confirmar contraseña" required>
+                </div>
+                
+                <button type="submit" class="btn-submit">Registrarse</button>
+            </form>
+            
+            <p class="auth-link">
+                ¿Ya tienes cuenta? <a th:href="@{/login}">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,21 +1,213 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">  <!-- AGREGAR ESTA LÍNEA --><head>
     <meta charset="UTF-8">
-    <title>Panel Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerdeVive - Panel Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Panel de administrador</h1>
-    <p>Bienvenido. Este espacio es solo para usuarios con rol ADMIN.</p>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="admin-panel">
+        <div class="admin-header">
+            <h1>Panel de administrador</h1>
+            <p class="welcome-message">Bienvenido. Este espacio es solo para usuarios con rol ADMIN.</p>
+        </div>
+        
+        <div class="admin-menu">
+            <div class="menu-cards">
+                <!-- Inicio admin -->
+                <div class="menu-card">
+                    <div class="card-icon">🏠</div>
+                    <h3>Inicio admin</h3>
+                    <p>Vista principal del panel administrativo</p>
+                    <a th:href="@{/admin/panel}" class="card-link">Acceder →</a>
+                </div>
+                
+                <!-- Ver panel de usuario -->
+                <div class="menu-card">
+                    <div class="card-icon">👤</div>
+                    <h3>Panel de usuario</h3>
+                    <p>Ver panel de usuario (si tiene permiso)</p>
+                    <a th:href="@{/user/panel}" class="card-link">Acceder →</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-info">
+            <div class="info-card">
+                <h3>Información de sesión</h3>
+                <p><strong>Rol:</strong> ADMIN</p>
+                <p><strong>Usuario:</strong> <span th:text="${#authentication.name}">admin</span></p>
+            </div>
+        </div>
+        
+        <div class="logout-section">
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn-logout-large">
+                    <span class="logout-icon">🚪</span>
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
+    </div>
 
-    <ul>
-        <li><a th:href="@{/admin/panel}">Inicio admin</a></li>
-        <li><a th:href="@{/user/panel}">Ver panel de usuario (si tiene permiso)</a></li>
-    </ul>
-
-    <form th:action="@{/logout}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        <button type="submit">Cerrar sesion</button>
-    </form>
+    <script th:src="@{/js/main.js}"></script>
+    
+    <style>
+        .admin-panel {
+            padding: 100px 2rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .admin-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .admin-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-message {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .menu-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .menu-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #ecf0f1;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(39, 174, 96, 0.15);
+            border-color: #27ae60;
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .menu-card p {
+            color: #7f8c8d;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-link {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .card-link:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .admin-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 0.5rem;
+        }
+        
+        .info-card p {
+            color: #34495e;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-card p strong {
+            color: #27ae60;
+        }
+        
+        .btn-logout-large {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .btn-logout-large:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(192, 57, 43, 0.3);
+        }
+        
+        .logout-section {
+            text-align: center;
+            margin-top: 3rem;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+            
+            .menu-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -1,20 +1,240 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">  <!-- AGREGAR ESTA LÍNEA --><head>
     <meta charset="UTF-8">
-    <title>Panel Usuario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VerdeVive - Mi Panel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Panel de usuario</h1>
-    <p>Bienvenido. Este espacio es para usuarios con rol USER.</p>
-
-    <ul>
-        <li><a th:href="@{/user/panel}">Inicio usuario</a></li>
-    </ul>
-
-    <form th:action="@{/logout}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-        <button type="submit">Cerrar sesion</button>
-    </form>
+    <div th:replace="fragments/navbar :: navbar"></div>
+    
+    <div class="user-dashboard">
+        <div class="welcome-section">
+            <h1>¡Bienvenido a tu espacio verde!</h1>
+            <p>Aquí puedes gestionar tu perfil y ver tu progreso</p>
+        </div>
+        
+        <div class="user-stats">
+            <div class="stat-card">
+                <span class="stat-icon">🌱</span>
+                <h3>Mi Impacto</h3>
+                <p class="stat-value">15 kg CO₂</p>
+                <span class="stat-desc">reducidos este mes</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">💧</span>
+                <h3>Agua Ahorrada</h3>
+                <p class="stat-value">250 L</p>
+                <span class="stat-desc">este mes</span>
+            </div>
+            
+            <div class="stat-card">
+                <span class="stat-icon">🌳</span>
+                <h3>Árboles</h3>
+                <p class="stat-value">5</p>
+                <span class="stat-desc">adoptados</span>
+            </div>
+        </div>
+        
+        <div class="user-actions">
+            <h2>Acciones Rápidas</h2>
+            <div class="actions-grid">
+                <a href="#" class="action-card">
+                    <span class="action-icon">👤</span>
+                    <h3>Mi Perfil</h3>
+                    <p>Actualiza tu información personal</p>
+                </a>
+                
+                <a href="#" class="action-card">
+                    <span class="action-icon">📊</span>
+                    <h3>Mi Progreso</h3>
+                    <p>Revisa tu impacto ambiental</p>
+                </a>
+                
+                <a href="#" class="action-card">
+                    <span class="action-icon">🌿</span>
+                    <h3>Proyectos</h3>
+                    <p>Únete a nuevos proyectos</p>
+                </a>
+                
+                <a href="#" class="action-card">
+                    <span class="action-icon">🏆</span>
+                    <h3>Logros</h3>
+                    <p>3 logros desbloqueados</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="recommendations">
+            <h2>Recomendaciones para ti</h2>
+            <div class="recommendations-grid">
+                <div class="recommendation-card">
+                    <h3>🌞 Energía Solar</h3>
+                    <p>Aprende cómo instalar paneles solares en tu hogar</p>
+                    <a href="#" class="learn-more">Saber más →</a>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h3>🚲 Movilidad Sostenible</h3>
+                    <p>Descubre rutas ecológicas en tu ciudad</p>
+                    <a href="#" class="learn-more">Saber más →</a>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h3>🥗 Alimentación Consciente</h3>
+                    <p>Recetas y consejos para una dieta sostenible</p>
+                    <a href="#" class="learn-more">Saber más →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .user-dashboard {
+            padding: 100px 2rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 3rem;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-section p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .user-stats .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .user-stats .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-value {
+            color: #27ae60;
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        
+        .stat-desc {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .user-actions h2,
+        .recommendations h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: 1px solid #ecf0f1;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(39, 174, 96, 0.2);
+            border-color: #27ae60;
+        }
+        
+        .action-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        
+        .action-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-card p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .recommendation-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+        
+        .recommendation-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recommendation-card p {
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+        }
+        
+        .learn-more {
+            color: #27ae60;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .learn-more:hover {
+            color: #2ecc71;
+        }
+    </style>
 </body>
 </html>
